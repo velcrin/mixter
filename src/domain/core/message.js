@@ -56,6 +56,9 @@ var Message = function Message(events) {
       }
       this.requackers.push(event.requacker);
     })
+    .register(MessageDeleted, function() {
+      this.deleted = true;
+    })
     .apply(events);
 
   self.requack = function requack(publishEvent, requacker) {
@@ -67,7 +70,7 @@ var Message = function Message(events) {
   };
 
   self.delete = function(publishEvent, deleter) {
-    if (projection.author.equals(deleter)) {
+    if (!projection.deleted && projection.author.equals(deleter)) {
       publishEvent(new MessageDeleted(projection.messageId));
     }
   };
