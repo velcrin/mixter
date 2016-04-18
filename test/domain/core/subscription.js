@@ -68,7 +68,7 @@ describe('Subscription Aggregate', function() {
     it('Given unfollow When notify follower Then do not raised FollowerMessageQuacked', function () {
         var userSubscription = subscription.create([
             new subscription.UserFollowed(subscriptionId),
-            new subscription.UserUnfollowed(subscriptionId),
+            new subscription.UserUnfollowed(subscriptionId)
         ]);
 
         userSubscription.notifyFollower(publishEvent, new MessageId('M1'));

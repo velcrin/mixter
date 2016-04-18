@@ -41,21 +41,26 @@ FolloweeMessageQuacked.prototype.getAggregateId = function getAggregateId(){
     return this.subscriptionId;
 };
 
-var Subscription = function(event) {
+var Subscription = function(events) {
     var self = this;
 
     var projection = decisionProjection.create()
       .register(UserFollowed, function(event) {
           this.subscriptionId = event.subscriptionId;
       })
-      .apply(event);
+      .register(UserUnfollowed, function() {
+          delete this.subscriptionId;
+      })
+      .apply(events);
 
     self.unfollow = function(publishEvent) {
         publishEvent(new UserUnfollowed(projection.subscriptionId));
     };
 
     self.notifyFollower = function(publishEvent, messageId) {
-        publishEvent(new FolloweeMessageQuacked(projection.subscriptionId, messageId));
+        if(projection.subscriptionId) {
+            publishEvent(new FolloweeMessageQuacked(projection.subscriptionId, messageId));
+        }
     };
 };
 
@@ -67,6 +72,6 @@ exports.followUser = function followUser(publishEvent, follower, followee) {
     return subscriptionId;
 };
 
-exports.create = function create(event) {
-    return new Subscription(event);
+exports.create = function create(events) {
+    return new Subscription(events);
 }
