@@ -41,6 +41,20 @@ FolloweeMessageQuacked.prototype.getAggregateId = function getAggregateId(){
     return this.subscriptionId;
 };
 
+var Subscription = function(event) {
+    var self = this;
+
+    var projection = decisionProjection.create()
+      .register(UserFollowed, function(event) {
+          this.subscriptionId = event.subscriptionId;
+      })
+      .apply(event);
+
+    self.unfollow = function(publishEvent) {
+        publishEvent(new UserUnfollowed(projection.subscriptionId));
+    }
+};
+
 exports.followUser = function followUser(publishEvent, follower, followee) {
     var subscriptionId = new SubscriptionId(follower, followee);
 
@@ -48,3 +62,7 @@ exports.followUser = function followUser(publishEvent, follower, followee) {
 
     return subscriptionId;
 };
+
+exports.create = function create(event) {
+    return new Subscription(event);
+}
