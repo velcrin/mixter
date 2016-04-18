@@ -4,11 +4,17 @@ var NotifyFollowerOfFolloweeMessage = function NotifyFollowerOfFolloweeMessage(s
     var self = this;
 
     self.register = function register(eventPublisher) {
-        eventPublisher.on(message.MessageQuacked, function(event) {
-            subscriptionsRepository.getSubscriptionsOfUser(event.author).forEach(function(subscription) {
-                subscription.notifyFollower(eventPublisher.publish, event.messageId)
-            });
-        })
+        eventPublisher
+          .on(message.MessageQuacked, function(event) {
+              subscriptionsRepository.getSubscriptionsOfUser(event.author).forEach(function(subscription) {
+                  subscription.notifyFollower(eventPublisher.publish, event.messageId)
+              });
+          })
+          .on(message.MessageRequacked, function(event) {
+              subscriptionsRepository.getSubscriptionsOfUser(event.requacker).forEach(function(subscription) {
+                  subscription.notifyFollower(eventPublisher.publish, event.messageId)
+              });
+          })
     };
 };
 
