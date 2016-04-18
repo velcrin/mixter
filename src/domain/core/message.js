@@ -45,16 +45,18 @@ MessageDeleted.prototype.getAggregateId = function getAggregateId(){
 var Message = function Message(events){
     var self = this;
 
-    var projection = decisionProjection.create().register(MessageQuacked, function(event) {
+    var projection = decisionProjection.create()
+      .register(MessageQuacked, function(event) {
         this.messageId = event.messageId;
         this.author = event.author;
-    }).register(MessageRequacked, function(event) {
-        if(!this.requackers){
-            this.requackers = [];
+      })
+      .register(MessageRequacked, function(event) {
+        if (!this.requackers) {
+          this.requackers = [];
         }
-
         this.requackers.push(event.requacker);
-    }).apply(events);
+      })
+      .apply(events);
 
     self.requack = function requack(publishEvent, requacker) {
         if(projection.author.equals(requacker) || _.includes(projection.requackers, requacker)){
@@ -62,6 +64,10 @@ var Message = function Message(events){
         }
 
         publishEvent(new MessageRequacked(projection.messageId, requacker));
+    };
+
+    self.delete = function(publishEvent) {
+        publishEvent(new MessageDeleted(projection.messageId));
     };
 };
 
