@@ -52,7 +52,11 @@ var Subscription = function(event) {
 
     self.unfollow = function(publishEvent) {
         publishEvent(new UserUnfollowed(projection.subscriptionId));
-    }
+    };
+
+    self.notifyFollower = function(publishEvent, messageId) {
+        publishEvent(new FolloweeMessageQuacked(projection.subscriptionId, messageId));
+    };
 };
 
 exports.followUser = function followUser(publishEvent, follower, followee) {
